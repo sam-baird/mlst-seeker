@@ -1,6 +1,9 @@
 """Filter taxon reports from the NCBI datasets API."""
 import dateutil.parser
+import pandas as pd
 
+# mlst program uses column #3 to output sequence type
+SEQUENCE_TYPE_COLUMN = 2
 
 def filter_reports_by_location(reports: list[dict],
                                location: str) -> list[dict]:
@@ -66,3 +69,8 @@ def get_attribute(report: dict, attribute: str) -> str | None:
     record = next((item for item in attributes
                    if item["name"] == attribute), None)
     return record.get("value") if record else None
+
+
+def filter_mlst(mlst: pd.DataFrame, sequence_type: str) -> pd.DataFrame:
+    filtered_mlst = mlst[mlst.iloc[:, SEQUENCE_TYPE_COLUMN] == sequence_type]
+    return filtered_mlst

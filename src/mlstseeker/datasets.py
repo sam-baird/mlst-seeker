@@ -37,5 +37,5 @@ def get_genomes(accessions):
     }
     with requests.post(url, json=obj, stream=True, timeout=TIMEOUT) as response:
         response.raise_for_status()
-        with open("genomes.zip", "wb") as f:
+        with open("genomes.zip.gz", "wb") as f:
             shutil.copyfileobj(response.raw, f)
