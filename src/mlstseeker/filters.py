@@ -1,4 +1,6 @@
 """Filter taxon reports from the NCBI datasets API."""
+import dateutil.parser
+
 
 def filter_reports_by_location(reports: list[dict],
                                location: str) -> list[dict]:
@@ -20,7 +22,7 @@ def filter_reports_by_location(reports: list[dict],
     return filtered
 
 
-def filter_reports_by_date(reports: list[dict],
+def filter_reports_by_year(reports: list[dict],
                            start: str | None,
                            end: str | None) -> list[dict]:
     """Filter taxon reports from the NCBI datasets API based on the
@@ -28,17 +30,24 @@ def filter_reports_by_date(reports: list[dict],
 
     Args:
         reports (list[dict]): taxon reports (from datasets.get_taxon_reports())
-        start (str | None): earliest collection date YYYY<-MM-DD>
-        end (str | None): latest collection date YYYY<-MM-DD>
+        start (str | None): earliest collection year
+        end (str | None): latest collection year
 
     Returns:
         list[dict]: new reports list after filtering
     """
     filtered = []
+    unknown_date_count = 0
     for report in reports:
-        date = get_attribute(report, "collection_date")
-        if date and ((start is None or date >= start)
-                     and (end is None or date <= end)):
+        date_str = get_attribute(report, "collection_date")
+        try:
+            year = dateutil.parser.parse(date_str).year
+        except (ValueError, TypeError):
+            # exclude if an unintelligible date
+            unknown_date_count += 1
+            continue
+        if year and ((start is None or year >= start)
+                        and (end is None or year <= end)):
             filtered.append(report)
     return filtered
 

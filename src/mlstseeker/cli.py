@@ -16,7 +16,7 @@ def parse_args():
 
 def parse_subcommands(parser):
     """Add arguments for preview and fetch subcommands"""
-    subparsers = parser.add_subparsers(dest="cmd")  # TODO: help msg
+    subparsers = parser.add_subparsers(dest="command")  # TODO: help msg
     subparsers.required = True
     subparsers.add_parser("preview")
     subparsers.add_parser("fetch")
@@ -38,13 +38,13 @@ def parse_subcommands(parser):
         subparser.add_argument(
             "-s",
             "--collect-start",
-            help="earliest collection date in YYYY-<MM-DD> format"
+            help="earliest collection year"
         )
 
         subparser.add_argument(
             "-e",
             "--collect-end",
-            help="latest collection date in YYYY-<MM-DD> format"
+            help="latest collection year"
         )
 
         subparser.add_argument(
