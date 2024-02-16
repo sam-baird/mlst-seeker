@@ -1,4 +1,5 @@
 """Entrypoint for program."""
+import copy
 import gzip
 import pandas as pd
 import subprocess
@@ -13,8 +14,8 @@ pd.options.display.max_colwidth = 500
 
 def main():
     options = cli.parse_args()
-    reports = datasets.get_taxon_reports(options.organism)
-    filtered_reports = reports
+    report = datasets.Report(options.organism)
+    filtered_report = copy.deepcopy(report)
     if options.collect_start or options.collect_end:
         if options.collect_start and not options.collect_start.isnumeric():
             raise ValueError("Invalid start year")
@@ -22,16 +23,14 @@ def main():
             raise ValueError("Invalid end year")
         start = int(options.collect_start) if options.collect_start else None
         end = int(options.collect_end) if options.collect_end else None
-        filtered_reports = filters.filter_reports_by_year(reports, start, end)
+        filtered_report = report.filter_by_year(start, end)
     if options.location:
-        location = options.location
-        filtered_reports = filters.filter_reports_by_location(filtered_reports,
-                                                              location)
+        filtered_report = filtered_report.filter_by_location(options.location)
     if options.command == "preview":
-        counts_json = preview.create_counts_json(reports, filtered_reports)
+        counts_json = preview.create_counts_json(report, filtered_report)
         print(counts_json)
     else:
-        accessions = [r["accession"] for r in filtered_reports]
+        accessions = [r["accession"] for r in filtered_report]
         datasets.get_genomes(accessions)
         with gzip.open("genomes.zip.gz", "rb") as gz_file:
             with zipfile.ZipFile(gz_file, "r") as temp_file:
@@ -41,7 +40,7 @@ def main():
         subprocess.run(mlst_command, check=True, shell=True)
         mlst = pd.read_csv("mlst.tsv", sep="\t", header=None, on_bad_lines='warn')
         filtered_mlst = filters.filter_mlst(mlst, sequence_type)
-            print(filtered_mlst.iloc[:, 0].to_string(index=False))
+        print(filtered_mlst.iloc[:, 0].to_string(index=False))
 
 
 if __name__ == "__main__":
