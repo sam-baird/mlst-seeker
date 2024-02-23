@@ -43,6 +43,7 @@ class Report:
             self.records = records
             return
         self.records: list[dict] = []
+        self.index = 0
         url = f"{BASEURL}/genome/taxon/{organism}/dataset_report"
         params = {"page_size": self.NUMREPORTS}
         while True:
@@ -108,6 +109,19 @@ class Report:
         record = next((item for item in attributes
                       if item["name"] == attribute), None)
         return record.get("value") if record else None
+    
+    def __iter__(self):
+        """Create iterator for looping over records."""
+        self.index = 0
+        return self
+    
+    def __next__(self):
+        """Return next record."""
+        if self.index < len(self.records):
+            record = self.records[self.index]
+            self.index += 1
+            return record
+        raise StopIteration
 
 
 def get_genomes(accessions: str):
