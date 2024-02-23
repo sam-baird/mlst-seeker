@@ -46,10 +46,7 @@ class Report:
         url = f"{BASEURL}/genome/taxon/{organism}/dataset_report"
         params = {"page_size": self.NUMREPORTS}
         while True:
-            try:
-                response = requests.get(url, params=params, timeout=TIMEOUT)
-            except requests.exceptions.Timeout:
-                print("Failed to connect to NCBI datasets API")
+            response = requests.get(url, params=params, timeout=TIMEOUT)
             data = json.loads(response.text)
             self.records.extend(data["reports"])
             page_token = data.get("next_page_token")
@@ -74,7 +71,7 @@ class Report:
                 filtered_records.append(record)
         return Report(records=filtered_records)
     
-    def filter_by_year(self, start: str | None, end: str | None) -> Self:
+    def filter_by_year(self, start: int | None, end: int | None) -> Self:
         """Filter based on the collection_date BioSample attribute.
 
         Args:
