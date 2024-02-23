@@ -37,18 +37,21 @@ def parse_subcommands(parser):
 
         subparser.add_argument(
             "-s",
+            "--scheme",
+            help="PubMLST scheme name"
+        )
+
+        subparser.add_argument(
             "--collect-start",
             help="earliest collection year"
         )
 
         subparser.add_argument(
-            "-e",
             "--collect-end",
             help="latest collection year"
         )
 
         subparser.add_argument(
-            "-l",
             "--location",
             help="geographic location of where sample was collected"
         )

@@ -35,11 +35,10 @@ def main():
         with gzip.open("genomes.zip.gz", "rb") as gz_file:
             with zipfile.ZipFile(gz_file, "r") as temp_file:
                 temp_file.extractall("genomes")
-        sequence_type, scheme = options.type.split('_')
-        mlst_command = f"mlst --quiet --scheme {scheme} genomes/ncbi_dataset/*/*/* > mlst.tsv"
+        mlst_command = f"mlst --quiet --scheme {options.scheme} genomes/ncbi_dataset/*/*/* > mlst.tsv"
         subprocess.run(mlst_command, check=True, shell=True)
         mlst = pd.read_csv("mlst.tsv", sep="\t", header=None, on_bad_lines='warn')
-        filtered_mlst = filters.filter_mlst(mlst, sequence_type)
+        filtered_mlst = filters.filter_mlst(mlst, options.sequence_type)
         print(filtered_mlst.iloc[:, 0].to_string(index=False))
 
 
