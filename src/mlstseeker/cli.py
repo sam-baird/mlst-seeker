@@ -58,4 +58,10 @@ def parse_subcommands(parser):
             help="geographic location of where sample was collected"
         )
 
+        subparser.add_argument(
+            "--cached-only",
+            action=argparse.BooleanOptionalAction,
+            help="only report cached MLST results"
+        )
+
     return parser

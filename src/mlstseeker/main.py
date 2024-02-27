@@ -49,14 +49,17 @@ def main():
     elif options.command == "cache":
         cache.update(cached_df, metadata_df, options.scheme)
     else:
-        accessions = [r["accession"] for r in filtered_report]
-        datasets.get_genomes(accessions)
-        mlst_df = mlst.perform_mlst(options.scheme)
-        mlst_df = mlst.filter_mlst(mlst_df, options.type)
-        final_df = mlst.merge_with_metadata(mlst_df, metadata_df)
-        print(final_df.to_string())
-        print(final_df.dtypes)
-
+        if options.cached_only:
+            matches_df = filtered_cached_df[filtered_cached_df["sequence_type"] == options.type]
+            print(matches_df.to_string())
+        else:
+            # TODO combine cached and fetched
+            accessions = [r["accession"] for r in filtered_report]
+            datasets.get_genomes(accessions)
+            mlst_df = mlst.perform_mlst(options.scheme)
+            mlst_df = mlst.filter_mlst(mlst_df, options.type)
+            final_df = mlst.merge_with_metadata(mlst_df, metadata_df)
+            print(final_df.to_string())
 
 
 if __name__ == "__main__":
