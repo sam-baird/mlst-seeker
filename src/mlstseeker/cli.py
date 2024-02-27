@@ -20,6 +20,7 @@ def parse_subcommands(parser):
     subparsers.required = True
     subparsers.add_parser("preview")
     subparsers.add_parser("fetch")
+    subparsers.add_parser("cache")
 
     for _, subparser in subparsers.choices.items():
         subparser.add_argument(
@@ -38,6 +39,7 @@ def parse_subcommands(parser):
         subparser.add_argument(
             "-s",
             "--scheme",
+            required=True,
             help="PubMLST scheme name"
         )
 

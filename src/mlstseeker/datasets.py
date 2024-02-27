@@ -1,10 +1,12 @@
 """Make calls to NCBI's datasets API."""
+import gzip
 import json
 import shutil
 import time
 
 import dateutil.parser
 import requests
+import zipfile
 
 from typing import Optional, Self
 
@@ -45,7 +47,10 @@ class Report:
         self.records: list[dict] = []
         self.index = 0
         url = f"{BASEURL}/genome/taxon/{organism}/dataset_report"
-        params = {"page_size": self.NUMREPORTS}
+        params = {
+            "page_size": self.NUMREPORTS,
+            "filters.assembly_source": "genbank"
+        }
         while True:
             response = requests.get(url, params=params, timeout=TIMEOUT)
             data = json.loads(response.text)
@@ -110,6 +115,21 @@ class Report:
                       if item["name"] == attribute), None)
         return record.get("value") if record else None
     
+    def get_metadata_dicts(self) -> list[dict]:
+        """Get basic metadata as a list of dicts: accession, biosample,
+        source_database, location, and collection_date.
+        """
+        metadata_dicts = []
+        for record in self.records:
+            metadata = {}
+            metadata["accession"] = record["accession"]
+            metadata["biosample"] = record["assembly_info"]["biosample"]["accession"]
+            metadata["source_database"] = record["source_database"]
+            metadata["location"] = self.get_attribute(record, "geo_loc_name")
+            metadata["collection_date"] = self.get_attribute(record, "collection_date")
+            metadata_dicts.append(metadata)
+        return metadata_dicts
+    
     def __iter__(self):
         """Create iterator for looping over records."""
         self.index = 0
@@ -139,3 +159,7 @@ def get_genomes(accessions: str):
         response.raise_for_status()
         with open("genomes.zip.gz", "wb") as f:
             shutil.copyfileobj(response.raw, f)
+            shutil.rmtree("genomes")
+    with gzip.open("genomes.zip.gz", "rb") as gz_file:
+        with zipfile.ZipFile(gz_file, "r") as temp_file:
+            temp_file.extractall("genomes")

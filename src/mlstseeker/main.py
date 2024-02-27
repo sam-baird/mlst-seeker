@@ -1,13 +1,13 @@
 """Entrypoint for program."""
 import copy
-import gzip
 import pandas as pd
-import subprocess
-import zipfile
 
+from google.cloud.exceptions import NotFound
+
+from . import cache
 from . import cli
 from . import datasets
-from . import filters
+from . import mlst
 from . import preview
 
 pd.options.display.max_colwidth = 500
@@ -15,6 +15,8 @@ pd.options.display.max_colwidth = 500
 def main():
     options = cli.parse_args()
     report = datasets.Report(options.organism)
+    metadata = report.get_metadata_dicts()
+    metadata_df = pd.DataFrame(metadata, dtype="string")
     filtered_report = copy.deepcopy(report)
     if options.collect_start or options.collect_end:
         if options.collect_start and not options.collect_start.isnumeric():
@@ -29,18 +31,23 @@ def main():
     if options.command == "preview":
         counts_json = preview.create_counts_json(report, filtered_report)
         print(counts_json)
+    cached_df = None
+    try:
+        cached_df = cache.get_table(options.scheme)
+    except NotFound:
+        print(f"{options.scheme} cache does not exist")
+    if options.command == "cache":
+        cache.update(cached_df, metadata_df, options.scheme)
     else:
-        accessions = [r["accession"] for r in filtered_report]
+        accessions = [r["accession"] for r in filtered_report][:5]
         datasets.get_genomes(accessions)
-        with gzip.open("genomes.zip.gz", "rb") as gz_file:
-            with zipfile.ZipFile(gz_file, "r") as temp_file:
-                temp_file.extractall("genomes")
-        mlst_command = f"mlst --quiet --scheme {options.scheme} genomes/ncbi_dataset/*/*/* > mlst.tsv"
-        subprocess.run(mlst_command, check=True, shell=True)
-        mlst = pd.read_csv("mlst.tsv", sep="\t", header=None, on_bad_lines='warn')
-        filtered_mlst = filters.filter_mlst(mlst, options.type)
-        print(filtered_mlst.to_string())
-        print(filtered_mlst.iloc[:, 0].to_string(index=False))
+        mlst_df = mlst.perform_mlst(options.scheme)
+        if options.command == "fetch":
+            mlst_df = mlst.filter_mlst(mlst_df, options.type)
+        final_df = mlst.merge_with_metadata(mlst_df, metadata_df)
+        print(final_df.to_string())
+        print(final_df.dtypes)
+
 
 
 if __name__ == "__main__":
