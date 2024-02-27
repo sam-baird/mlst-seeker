@@ -18,6 +18,12 @@ def main():
     metadata = report.get_metadata_dicts()
     metadata_df = pd.DataFrame(metadata, dtype="string")
     filtered_report = copy.deepcopy(report)
+    cached_df = None
+    try:
+        cached_df = cache.get_table(options.scheme)
+        filtered_cached_df = cached_df.copy()
+    except NotFound:
+        print(f"{options.scheme} cache does not exist")
     if options.collect_start or options.collect_end:
         if options.collect_start and not options.collect_start.isnumeric():
             raise ValueError("Invalid start year")
@@ -26,24 +32,27 @@ def main():
         start = int(options.collect_start) if options.collect_start else None
         end = int(options.collect_end) if options.collect_end else None
         filtered_report = report.filter_by_year(start, end)
+        filtered_cached_df = cache.filter_by_year(filtered_cached_df, start, end)
     if options.location:
         filtered_report = filtered_report.filter_by_location(options.location)
+        filtered_cached_df = cache.filter_by_location(filtered_cached_df, options.location)
+    filtered_metadata_df = pd.DataFrame(filtered_report.get_metadata_dicts(), dtype="string")
     if options.command == "preview":
-        counts_json = preview.create_counts_json(report, filtered_report)
+        counts_json = preview.create_counts_json(
+            metadata_df,
+            filtered_metadata_df,
+            cached_df,
+            filtered_cached_df,
+            options.type
+        )
         print(counts_json)
-    cached_df = None
-    try:
-        cached_df = cache.get_table(options.scheme)
-    except NotFound:
-        print(f"{options.scheme} cache does not exist")
-    if options.command == "cache":
+    elif options.command == "cache":
         cache.update(cached_df, metadata_df, options.scheme)
     else:
-        accessions = [r["accession"] for r in filtered_report][:5]
+        accessions = [r["accession"] for r in filtered_report]
         datasets.get_genomes(accessions)
         mlst_df = mlst.perform_mlst(options.scheme)
-        if options.command == "fetch":
-            mlst_df = mlst.filter_mlst(mlst_df, options.type)
+        mlst_df = mlst.filter_mlst(mlst_df, options.type)
         final_df = mlst.merge_with_metadata(mlst_df, metadata_df)
         print(final_df.to_string())
         print(final_df.dtypes)

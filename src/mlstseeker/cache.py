@@ -82,5 +82,21 @@ def get_table_id(scheme: str) -> str:
     table_id = f"{project}.mlst_seeker.{scheme}"
     return table_id
 
+def filter_by_location(df: pd.DataFrame, location: str) -> pd.DataFrame:
+    filtered = df[df["location"].notna()]
+    filtered = filtered[filtered["location"].str.startswith(location)]
+    return filtered
+
+def filter_by_year(df: pd.DataFrame, start: int | None, end: int | None) -> pd.DataFrame:
+    filtered = df.copy()
+    filtered["year"] = pd.to_datetime(df["collection_date"], errors="coerce").dt.year
+    filtered = filtered[filtered["year"].notna()]
+    filtered = filtered[filtered["year"] >= start | filtered["year"] <= end]
+    filtered.drop(columns="year")
+    return filtered
+
+def filter_by_sequence_type(df: pd.DataFrame, sequence_type: str) -> pd.DataFrame:
+    return df[df["sequence_type"] == sequence_type]
+
 if __name__ == "__main__":
     create_table("mabscessus")
