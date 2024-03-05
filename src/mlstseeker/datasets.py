@@ -3,6 +3,7 @@ import gzip
 import json
 import shutil
 import time
+import pprint
 
 import dateutil.parser
 import requests
@@ -110,7 +111,10 @@ class Report:
         Returns:
             str | None: attribute value (if it exists)
         """
-        attributes = record["assembly_info"]["biosample"]["attributes"]
+        try:
+            attributes = record["assembly_info"]["biosample"]["attributes"]
+        except KeyError:
+            return None
         record = next((item for item in attributes
                       if item["name"] == attribute), None)
         return record.get("value") if record else None
@@ -122,9 +126,12 @@ class Report:
         metadata_dicts = []
         for record in self.records:
             metadata = {}
-            metadata["accession"] = record["accession"]
-            metadata["biosample"] = record["assembly_info"]["biosample"]["accession"]
-            metadata["source_database"] = record["source_database"]
+            metadata["biosample"] = (
+                record.get("assembly_info", {})
+                .get("biosample", {})
+                .get("accession")
+            )
+            metadata["source_database"] = record.get("source_database")
             metadata["location"] = self.get_attribute(record, "geo_loc_name")
             metadata["collection_date"] = self.get_attribute(record, "collection_date")
             metadata_dicts.append(metadata)
