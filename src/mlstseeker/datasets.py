@@ -4,6 +4,7 @@ import json
 import logging
 import shutil
 import time
+import os
 import pprint
 
 import dateutil.parser
@@ -178,7 +179,8 @@ def get_genomes(accessions: list[str]):
     with tqdm.wrapattr(response.raw, "read") as raw_response:
         with open("genomes.zip.gz", "wb") as f:
             shutil.copyfileobj(raw_response, f)
-    shutil.rmtree("genomes")
+    if os.path.exists("genomes"):
+        shutil.rmtree("genomes")
     with gzip.open("genomes.zip.gz", "rb") as gz_file:
         with zipfile.ZipFile(gz_file, "r") as temp_file:
             temp_file.extractall("genomes")
