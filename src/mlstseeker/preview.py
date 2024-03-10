@@ -22,7 +22,6 @@ def create_counts_json(
     else:
         cached_filtered_matches = cached_df.shape[0]
         cached_unfiltered_matches = filtered_cached_df.shape[0]
-    print(metadata_df.shape[0])
     mask = ~(metadata_df["biosample"].isin(cached_df["biosample"]))
     uncached_df = metadata_df.loc[mask]
     mask = ~(filtered_metadata_df["biosample"].isin(filtered_cached_df["biosample"]))
