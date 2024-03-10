@@ -4,6 +4,7 @@ import dotenv
 import logging
 import logging.config
 import pandas as pd
+import sys
 
 from google.cloud.exceptions import NotFound
 
@@ -14,6 +15,7 @@ from . import mlst
 from . import preview
 
 pd.options.display.max_colwidth = 500
+
 
 def main():
     logging.config.dictConfig({"version": 1, "disable_existing_loggers": True})
@@ -58,23 +60,20 @@ def main():
         cache.update_table(options.scheme, metadata_df)
     else:
         matches_df = filtered_cached_df[filtered_cached_df["sequence_type"] == options.type]
-        if options.cached_only:
-            print(matches_df.to_string())
-        else:
-            # TODO combine cached and fetched
+        if not options.cached_only:
             uncached_df = metadata_df[~(metadata_df["accession"].isin(cached_df["accession"]))]
             accessions = uncached_df["accession"].to_list()
             if accessions:
-                logging.info("%s genomes on NCBI that have not been typed (use --cached-only to skip)", len(accessions))
+                logging.info("Found %s genomes on NCBI that have not been typed (use --cached-only to skip)", len(accessions))
                 datasets.get_genomes(accessions)
                 mlst_df = mlst.perform_mlst(options.scheme)
                 mlst_df = mlst.filter_mlst(mlst_df, options.type)
                 mlst_df = mlst.merge_with_metadata(mlst_df, metadata_df)
                 mlst_df = mlst_df[mlst_df["sequence_type"] == options.type]
                 matches_df = pd.concat([matches_df, mlst_df])
-            else:
-                logging.info("No genomes to cache...")
-            print(matches_df.to_string())
+        logging.info("Found %s ST%s genomes", matches_df.shape[0], options.type)
+        datasets.get_genomes(matches_df['accession'].to_list())
+        matches_df.to_csv(sys.stdout, sep='\t')
 
 
 if __name__ == "__main__":

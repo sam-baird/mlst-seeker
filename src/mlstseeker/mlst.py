@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 import subprocess
 
@@ -6,6 +7,7 @@ SEQUENCE_TYPE_COLUMN = 2
 
 
 def perform_mlst(scheme: str) -> pd.DataFrame:
+    logging.info("Performing MLST...")
     mlst_command = f"""
         mlst \
         --scheme {scheme} \
@@ -33,6 +35,7 @@ def merge_with_metadata(mlst_df: pd.DataFrame, metadata_df: pd.DataFrame) -> pd.
         "accession": "accession",
         "biosample": "biosample",
         "source_database": "source_database",
+        "organism": "organism",
         "location": "location",
         "collection_date": "collection_date",
         "SCHEME": "scheme",

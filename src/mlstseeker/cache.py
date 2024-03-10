@@ -66,6 +66,7 @@ def create_table(scheme: str) -> None:
         *gene_cols,
         bigquery.SchemaField("last_updated", "TIMESTAMP",
                              default_value_expression="CURRENT_TIMESTAMP"),
+        bigquery.SchemaField("organism", "STRING"),
     ]
     table = bigquery.Table(table_id, schema=schema)
     table = client.create_table(table)
