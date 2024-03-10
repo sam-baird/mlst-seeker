@@ -35,18 +35,18 @@ def parse_subcommands(parser):
     subparsers.add_parser("cache")
 
     for subcommand in ("preview", "fetch", "cache"):
-        parser.add_argument(
+        subparsers.choices[subcommand].add_argument(
             "-o",
             "--organism", 
             required=True,
             help="organism or NCBI taxonomy ID"
         )
-        parser.add_argument(
+        subparsers.choices[subcommand].add_argument(
             "-t",
             "--type",
             help="multi-locus sequence type (MLST)"
         )
-        parser.add_argument(
+        subparsers.choices[subcommand].add_argument(
             "-s",
             "--scheme",
             required=True,
@@ -69,7 +69,7 @@ def parse_subcommands(parser):
             help="geographic location of where sample was collected"
         )
 
-    subparsers.choices["cache"].add_argument(
+    subparsers.choices["fetch"].add_argument(
         "--cached-only",
         action=argparse.BooleanOptionalAction,
         help="only report cached MLST results"
