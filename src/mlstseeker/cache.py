@@ -123,7 +123,7 @@ def get_table(scheme: str) -> pd.DataFrame:
     client = bigquery.Client()
     query = "SELECT * FROM {}".format(table_id)
     df = client.query(query).to_dataframe().astype("string")
-    logging.info("Downloaded %s MLST results", df.shape[0])
+    logging.info("Downloaded %s cached MLST results", df.shape[0])
     return df
 
 
