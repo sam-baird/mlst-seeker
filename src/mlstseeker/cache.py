@@ -1,4 +1,5 @@
 import dotenv
+import logging
 import os
 import pandas as pd
 import subprocess
@@ -31,7 +32,7 @@ def add_to_cache(cached_df: pd.DataFrame, metadata_df: pd.DataFrame, scheme: str
     num_caching = 0
     for batch in batches:
         num_caching += BATCH
-        print(f"Caching {num_caching}/{len(accessions)}...")
+        logging.info("Caching %s/%s...", num_caching, len(accessions))
         datasets.get_genomes(batch)
         mlst_df = mlst.perform_mlst(scheme)
         merged_df = mlst.merge_with_metadata(mlst_df, metadata_df)
@@ -117,10 +118,12 @@ def insert_rows(df: pd.DataFrame) -> None:
 
 def get_table(scheme: str) -> pd.DataFrame:
     """Return DataFrame of BigQuery table for the given MLST scheme."""
+    logging.info("Downloading cached MLST results...")
     table_id = get_table_id(scheme)
     client = bigquery.Client()
     query = "SELECT * FROM {}".format(table_id)
     df = client.query(query).to_dataframe().astype("string")
+    logging.info("Downloaded %s MLST results", df.shape[0])
     return df
 
 

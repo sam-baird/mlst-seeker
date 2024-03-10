@@ -1,6 +1,7 @@
 """Make calls to NCBI's datasets API."""
 import gzip
 import json
+import logging
 import shutil
 import time
 import pprint
@@ -9,6 +10,7 @@ import dateutil.parser
 import requests
 import zipfile
 
+from tqdm.auto import tqdm
 from typing import Optional, Self
 
 BASEURL = "https://api.ncbi.nlm.nih.gov/datasets/v2alpha"
@@ -20,7 +22,6 @@ class Report:
     View API spec here: https://www.ncbi.nlm.nih.gov/datasets/docs/v2/reference-docs/rest-api/
     """
     NUMREPORTS = 1000 # can only get max 1000 records at a time
-
     def __init__(
             self,
             organism: Optional[str]=None,
@@ -52,9 +53,16 @@ class Report:
             "page_size": self.NUMREPORTS,
             "filters.assembly_source": "genbank"
         }
+        num_fetched = 0
+        total_count = 0
+        logging.info("Downloading genome records from NCBI...")
         while True:
             response = requests.get(url, params=params, timeout=TIMEOUT)
             data = json.loads(response.text)
+            total_count = data["total_count"]
+            num_records = len(data["reports"])
+            num_fetched += num_records
+            logging.info("Downloaded %s of %s records", num_fetched, total_count)
             self.records.extend(data["reports"])
             page_token = data.get("next_page_token")
             if page_token is None:
@@ -153,22 +161,24 @@ class Report:
         raise StopIteration
 
 
-def get_genomes(accessions: str):
-    """Download genomes from NCBI Genome database.
-
-    Args:
-        accessions (str): NCBI Genome accession IDs.
-    """
+def get_genomes(accessions: list[str]):
+    """Download genomes for the given `accessions` from NCBI Genome database."""
+    logging.info("Downloading %s genomes...", len(accessions))
     url = f"{BASEURL}/genome/download"
     obj = {
         "accessions": accessions,
         "include_annotation_type": ["GENOME_FASTA"]
     }
-    with requests.post(url, json=obj, stream=True, timeout=TIMEOUT) as response:
+    response = requests.post(url, json=obj, stream=True, timeout=TIMEOUT)
+    if response.status_code != 200:
         response.raise_for_status()
+
+    # TODO: Show approximate total file size. No Content-Length header since
+    # using chunked Transfer-Encoding, so can maybe base it on genome size?
+    with tqdm.wrapattr(response.raw, "read") as raw_response:
         with open("genomes.zip.gz", "wb") as f:
-            shutil.copyfileobj(response.raw, f)
-            shutil.rmtree("genomes")
+            shutil.copyfileobj(raw_response, f)
+    shutil.rmtree("genomes")
     with gzip.open("genomes.zip.gz", "rb") as gz_file:
         with zipfile.ZipFile(gz_file, "r") as temp_file:
             temp_file.extractall("genomes")

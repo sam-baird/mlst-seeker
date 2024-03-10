@@ -1,6 +1,8 @@
 """Entrypoint for program."""
 import copy
 import dotenv
+import logging
+import logging.config
 import pandas as pd
 
 from google.cloud.exceptions import NotFound
@@ -14,6 +16,8 @@ from . import preview
 pd.options.display.max_colwidth = 500
 
 def main():
+    logging.config.dictConfig({"version": 1, "disable_existing_loggers": True})
+    logging.basicConfig(level=logging.DEBUG)
     options = cli.parse_args()
     report = datasets.Report(options.organism)
     metadata = report.get_metadata_dicts()
