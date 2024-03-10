@@ -31,10 +31,7 @@ def main():
     except NotFound:
         print(f"{options.scheme} cache does not exist")
     if options.collect_start or options.collect_end:
-        if options.collect_start and not options.collect_start.isnumeric():
-            raise ValueError("Invalid start year")
-        if options.collect_end and not options.collect_end.isnumeric():
-            raise ValueError("Invalid end year")
+        cli.validate_collect_dates(options)
         start = int(options.collect_start) if options.collect_start else None
         end = int(options.collect_end) if options.collect_end else None
         filtered_report = report.filter_by_year(start, end)

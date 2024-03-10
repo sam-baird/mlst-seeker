@@ -76,3 +76,9 @@ def parse_subcommands(parser):
     )
 
     return parser
+
+def validate_collect_dates(options):
+    if options.collect_start and not options.collect_start.isnumeric():
+        raise ValueError("Invalid start year")
+    if options.collect_end and not options.collect_end.isnumeric():
+        raise ValueError("Invalid end year")
