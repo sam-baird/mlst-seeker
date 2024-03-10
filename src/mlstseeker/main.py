@@ -1,5 +1,6 @@
 """Entrypoint for program."""
 import copy
+import dotenv
 import pandas as pd
 
 from google.cloud.exceptions import NotFound
@@ -20,6 +21,7 @@ def main():
     filtered_report = copy.deepcopy(report)
     cached_df = None
     try:
+        dotenv.load_dotenv()
         cached_df = cache.get_table(options.scheme)
         filtered_cached_df = cached_df.copy()
     except NotFound:
@@ -47,7 +49,8 @@ def main():
         )
         print(counts_json)
     elif options.command == "cache":
-        cache.update(cached_df, metadata_df, options.scheme)
+        cache.add_to_cache(cached_df, metadata_df, options.scheme)
+        cache.update_table(options.scheme, metadata_df)
     else:
         if options.cached_only:
             matches_df = filtered_cached_df[filtered_cached_df["sequence_type"] == options.type]

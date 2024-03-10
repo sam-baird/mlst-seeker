@@ -121,7 +121,7 @@ class Report:
     
     def get_metadata_dicts(self) -> list[dict]:
         """Get basic metadata as a list of dicts: accession, biosample,
-        source_database, location, and collection_date.
+        source_database, organism, location, and collection_date.
         """
         metadata_dicts = []
         for record in self.records:
@@ -131,7 +131,9 @@ class Report:
                 .get("biosample", {})
                 .get("accession")
             )
+            metadata["accession"] = record.get("accession")
             metadata["source_database"] = record.get("source_database")
+            metadata["organism"] = record.get("organism", {}).get("organism_name")
             metadata["location"] = self.get_attribute(record, "geo_loc_name")
             metadata["collection_date"] = self.get_attribute(record, "collection_date")
             metadata_dicts.append(metadata)
