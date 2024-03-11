@@ -45,7 +45,7 @@ def create_table(scheme: str) -> None:
     table_id = get_table_id(scheme)
     try:
         client.get_table(table_id)
-        print(f"{table_id} already exists")
+        logging.info("Table %s already exists", scheme)
         return
     except NotFound:
         pass
@@ -70,7 +70,7 @@ def create_table(scheme: str) -> None:
     ]
     table = bigquery.Table(table_id, schema=schema)
     table = client.create_table(table)
-    print("Created table {}.{}.{}".format(table.project, table.dataset_id, table.table_id))
+    logging.info("Created table %s", scheme)
 
 
 def add_column_all_tables(column_name: str, dtype: str) -> None:
@@ -132,28 +132,6 @@ def get_table_id(scheme: str) -> str:
     """Return the BigQuery table ID for the given MLST scheme."""
     table_id = f"{os.getenv('GCP_PROJECT')}.{DATASET}.{scheme}"
     return table_id
-
-
-def filter_by_location(df: pd.DataFrame, location: str) -> pd.DataFrame:
-    """Return rows with the given location in `df`."""
-    filtered = df[df["location"].notna()]
-    filtered = filtered[filtered["location"].str.startswith(location)]
-    return filtered
-
-
-def filter_by_year(df: pd.DataFrame, start: int | None, end: int | None) -> pd.DataFrame:
-    """Return rows in between `start` and `end` years (inclusive) in `df`."""
-    filtered = df.copy()
-    filtered["year"] = pd.to_datetime(df["collection_date"], errors="coerce").dt.year
-    filtered = filtered[filtered["year"].notna()]
-    filtered = filtered[filtered["year"] >= start | filtered["year"] <= end]
-    filtered.drop(columns="year")
-    return filtered
-
-
-def filter_by_sequence_type(df: pd.DataFrame, sequence_type: str) -> pd.DataFrame:
-    """Return rows with the given `sequence_type` in `df`."""
-    return df[df["sequence_type"] == sequence_type]
 
 
 if __name__ == "__main__":

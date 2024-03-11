@@ -5,7 +5,6 @@ import logging
 import shutil
 import time
 import os
-import pprint
 
 import dateutil.parser
 import requests

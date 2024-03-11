@@ -1,7 +1,7 @@
 import json
 import pandas as pd
 
-from . import cache
+from . import filters
 
 def create_counts_json(
         metadata_df: pd.DataFrame,
@@ -11,11 +11,11 @@ def create_counts_json(
         sequence_type: str) -> str:
 
     if sequence_type is not None:
-        cached_filtered_matches = cache.filter_by_sequence_type(
+        cached_filtered_matches = filters.filter_by_sequence_type(
             filtered_cached_df,
             sequence_type
         ).shape[0]
-        cached_unfiltered_matches = cache.filter_by_sequence_type(
+        cached_unfiltered_matches = filters.filter_by_sequence_type(
             cached_df,
             sequence_type
         ).shape[0]
