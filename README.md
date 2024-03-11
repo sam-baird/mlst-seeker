@@ -33,10 +33,9 @@ To download the 4 `"filtered_matches"` to a `genomes` directory and output a sum
     --location USA \
     --collect-start 2020 \
     --quiet
-        accession       biosample       source_database location        collection_date scheme  sequence_type   argH    cya     gnd     murC    pta     purH    rpoB    last_updated    organism        year
-17      GCA_017183895.1 SAMN16828770    SOURCE_DATABASE_GENBANK USA: Philadelphia, PA   2020    mabscessus      5       3       1       4       3       1       2       1       2024-02-26 22:06:31.776969+00:00        Mycobacteroides abscessus subsp. abscessus    2020.0
-34      GCA_017175945.1 SAMN16839166    SOURCE_DATABASE_GENBANK USA: Dallas, TX 2020    mabscessus      5       3       1       4       3       1       2       1       2024-02-27 00:45:10.189040+00:00        Mycobacteroides abscessus subsp. abscessus    2020.0
-45      GCA_017183875.1 SAMN16828771    SOURCE_DATABASE_GENBANK USA: Philadelphia, PA   2020    mabscessus      5       3       1       4       3       1       2       1       2024-02-26 22:06:31.776969+00:00        Mycobacteroides abscessus subsp. abscessus    2020.0
-51      GCA_017175975.1 SAMN16839163    SOURCE_DATABASE_GENBANK USA: Charleston, SC     2020    mabscessus      5       3       1       4       3       1       2       1       2024-02-27 01:03:56.867363+00:00        Mycobacteroides abscessus subsp. abscessus    2020.0
-0       GCA_900134485.1 SAMEA2275688    SOURCE_DATABASE_GENBANK United Kingdom  2010    mabscessus      5       3       1       4       3       1       2       1               Mycobacteroides abscessus subsp. abscessus
+accession       biosample       source_database location        collection_date scheme  sequence_type   argH    cya     gnd     murC    pta     purH    rpoB    last_updated    organism
+GCA_017183895.1 SAMN16828770    SOURCE_DATABASE_GENBANK USA: Philadelphia, PA   2020    mabscessus      5       3       1       4       3       1       2       1       2024-02-26 22:06:31.776969+00:00        Mycobacteroides abscessus subsp. abscessus
+GCA_017175945.1 SAMN16839166    SOURCE_DATABASE_GENBANK USA: Dallas, TX 2020    mabscessus      5       3       1       4       3       1       2       1       2024-02-27 00:45:10.189040+00:00        Mycobacteroides abscessus subsp. abscessus
+GCA_017183875.1 SAMN16828771    SOURCE_DATABASE_GENBANK USA: Philadelphia, PA   2020    mabscessus      5       3       1       4       3       1       2       1       2024-02-26 22:06:31.776969+00:00        Mycobacteroides abscessus subsp. abscessus
+GCA_017175975.1 SAMN16839163    SOURCE_DATABASE_GENBANK USA: Charleston, SC     2020    mabscessus      5       3       1       4       3       1       2       1       2024-02-27 01:03:56.867363+00:00        Mycobacteroides abscessus subsp. abscessus
 ```
