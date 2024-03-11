@@ -24,9 +24,7 @@ To preview the number of *Mycobacteroides abscessus* ST5 genomes collected in th
   }
 }
 ```
-`"typed"` includes includes genomes that have already had MLST performed. In the above example, `"unfiltered matches"` indicates there are 412 ST5 genomes in the whole dataset, and `"filtered_matches"` indicates 4 of those genomes have metadata that match our location and collection date criteria. `"untyped"` includes genomes on NCBI that have not had MLST performed, which is only 1 genome in this case.
-
-To download the 4 genome matches to a `genomes` directory and output a summary TSV, replace `preview` with `fetch`. This will also download the 1 untyped genome and perform MLST on it unless the `--cached-only` option is used.
+To download the 4 `"filtered_matches"` to a `genomes` directory and output a summary TSV, replace `preview` with `fetch`. This will also download the 1 untyped genome, perform MLST on it, and include it if it's also a match.
 ```bash
 % mlst-seeker fetch \
     --organism "Mycobacteroides abscessus" \
