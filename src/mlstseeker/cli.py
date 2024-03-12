@@ -30,9 +30,9 @@ def parse_subcommands(parser):
     """Add arguments for preview, fetch, and cache subcommands"""
     subparsers = parser.add_subparsers(dest="command")  # TODO: help msg
     subparsers.required = True
-    subparsers.add_parser("preview")
-    subparsers.add_parser("fetch")
-    subparsers.add_parser("cache")
+    subparsers.add_parser("preview", help="output JSON with genome counts")
+    subparsers.add_parser("fetch", help="download genomes and output TSV with MLST results and metadata")
+    subparsers.add_parser("cache", help="create or update BigQuery MLST cache")
 
     for subcommand in ("preview", "fetch", "cache"):
         subparsers.choices[subcommand].add_argument(
@@ -42,11 +42,6 @@ def parse_subcommands(parser):
             help="organism or NCBI taxonomy ID"
         )
         subparsers.choices[subcommand].add_argument(
-            "-t",
-            "--type",
-            help="multi-locus sequence type (MLST)"
-        )
-        subparsers.choices[subcommand].add_argument(
             "-s",
             "--scheme",
             required=True,
@@ -54,6 +49,12 @@ def parse_subcommands(parser):
         )
 
     for subcommand in ("preview", "fetch"):
+        subparsers.choices[subcommand].add_argument(
+            "-t",
+            "--type",
+            help="multi-locus sequence type (MLST)"
+        )
+
         subparsers.choices[subcommand].add_argument(
             "--collect-start",
             help="earliest collection year"
