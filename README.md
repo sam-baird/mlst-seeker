@@ -1,6 +1,8 @@
 # mlst-seeker
 Find bacterial genomes on NCBI's GenBank with a given multi-locus sequence type. Pre-determined MLST results are stored in a central BigQuery table.
 
+mlst-seeker uses Torsten Seemann's [`mlst`](https://github.com/tseemann/mlst) program to determine [PubMLST](https://pubmlst.org/) sequence types, and [NCBI datasets API](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/reference-docs/rest-api/) to fetch genomes and metadata from GenBank.
+
 ## Basic usage examples
 To preview the number of *Mycobacteroides abscessus* ST5 genomes collected in the USA since 2020:
 ```bash
